@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { LoanParams, Installment, FinancialData } from './types';
 import { calculateAmortization, recalculateOnSkip, postponeInstallment, applyLateFees } from './services/loanCalculator';
-import { fetchFinancialData } from './services/bancoCentralService';
 import LoanForm from './components/LoanForm';
 import AmortizationTable from './components/AmortizationTable';
 import PDFPrinter from './components/PDFPrinter';
@@ -12,33 +11,17 @@ export default function App() {
   const [loanParams, setLoanParams] = useState<LoanParams | null>(null);
   const [schedule, setSchedule] = useState<Installment[]>([]);
   const [originalSchedule, setOriginalSchedule] = useState<Installment[]>([]);
-  const [financialData, setFinancialData] = useState<FinancialData | null>(null);
-  const [loading, setLoading] = useState<string | null>('Cargando datos financieros iniciales...');
+  const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'cuota'>('cuota');
 
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        setError(null);
-        const data = await fetchFinancialData();
-        setFinancialData(data);
-      } catch (err) {
-        console.error(err);
-        setError('No se pudieron cargar los datos financieros (UF y TMC) de la CMF. Se usarán valores de referencia.');
-      } finally {
-        setLoading(null);
-      }
-    };
-    loadInitialData();
-  }, []);
+  // Datos financieros estáticos para producción
+  const financialData: FinancialData = {
+    ufValue: 39300,
+    tmcRate: 35.5
+  };
 
   const handleCalculate = useCallback(async (params: LoanParams) => {
-    if (!financialData) {
-      setError("Los datos financieros no están disponibles. No se puede calcular.");
-      return;
-    }
     setLoading('Calculando cronograma de pagos...');
     try {
       setError(null);
@@ -53,17 +36,17 @@ export default function App() {
     } finally {
       setLoading(null);
     }
-  }, [financialData]);
+  }, []);
   
   const handleReset = useCallback(() => {
     setSchedule(originalSchedule);
   }, [originalSchedule]);
 
   const handleSkipPayment = useCallback((installmentNumber: number) => {
-    if (!loanParams || !financialData) return;
+    if (!loanParams) return;
     const newSchedule = recalculateOnSkip(schedule, installmentNumber, loanParams, financialData);
     setSchedule(newSchedule);
-  }, [schedule, loanParams, financialData]);
+  }, [schedule, loanParams]);
 
   const handlePostponePayment = useCallback((installmentNumber: number) => {
     const newSchedule = postponeInstallment(schedule, installmentNumber);
@@ -71,10 +54,9 @@ export default function App() {
   }, [schedule]);
 
   const handleLatePayment = useCallback((installmentNumber: number, daysLate: number) => {
-    if (!financialData) return;
     const newSchedule = applyLateFees(schedule, installmentNumber, daysLate, financialData);
     setSchedule(newSchedule);
-  }, [schedule, financialData]);
+  }, [schedule]);
 
 
   return (
@@ -91,36 +73,27 @@ export default function App() {
           <aside className="lg:col-span-6 xl:col-span-6">
              <div className="bg-white p-6 rounded-2xl shadow-lg h-[900px] flex flex-col">
               <h2 className="text-2xl font-bold mb-4 text-gray-700 flex-shrink-0">Parámetros del Préstamo</h2>
-              {loading === 'Cargando datos financieros iniciales...' ? (
-                <div className="flex items-center justify-center flex-1">
-                  <Icon name="loader" className="animate-spin h-8 w-8 text-blue-600" />
-                  <span className="ml-3 text-gray-500">Cargando...</span>
+              <div className="flex flex-col flex-1">
+                <div className="flex-1">
+                  <LoanForm onCalculate={handleCalculate} isLoading={!!loading} financialData={financialData} />
                 </div>
-              ) : (
-                <div className="flex flex-col flex-1">
-                  <div className="flex-1">
-                    <LoanForm onCalculate={handleCalculate} isLoading={!!loading} financialData={financialData} />
-                  </div>
-                  {financialData && (
-                     <div className="mt-6 pt-4 border-t border-gray-200 text-sm text-gray-500 space-y-2 flex-shrink-0">
-                        <div className="flex justify-between items-center">
-                            <span className="font-semibold">Valor UF (referencial):</span>
-                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">${financialData.ufValue}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="font-semibold">TMC (referencial):</span>
-                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">{financialData.tmcRate.toFixed(2)}% anual</span>
-                        </div>
+                <div className="mt-6 pt-4 border-t border-gray-200 text-sm text-gray-500 space-y-2 flex-shrink-0">
+                    <div className="flex justify-between items-center">
+                        <span className="font-semibold">Valor UF (referencial):</span>
+                        <span className="font-mono bg-gray-100 px-2 py-1 rounded">${financialData.ufValue}</span>
                     </div>
-                  )}
+                    <div className="flex justify-between items-center">
+                        <span className="font-semibold">TMC (referencial):</span>
+                        <span className="font-mono bg-gray-100 px-2 py-1 rounded">{financialData.tmcRate.toFixed(2)}% anual</span>
+                    </div>
                 </div>
-              )}
+              </div>
             </div>
           </aside>
 
           <main className="lg:col-span-6 xl:col-span-6">
             <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg h-[900px] flex flex-col">
-              {loading && loading !== 'Cargando datos financieros iniciales...' && (
+              {loading && (
                  <div className="flex items-center justify-center h-64">
                   <Icon name="loader" className="animate-spin h-10 w-10 text-blue-600" />
                    <span className="ml-4 text-xl text-gray-600">{loading}</span>
