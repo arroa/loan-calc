@@ -333,10 +333,15 @@ function calcularPrestamo(monto, tasaMensual, cuotas, fechaFirma, primerVencimie
             cuoton
         };
         
+        console.log('🔍 Parámetros recibidos:', params);
+        
         // Validar parámetros de entrada
         const validacion = validarParametrosEntrada(params);
         
+        console.log('🔍 Resultado validación:', validacion);
+        
         if (validacion.errores.length > 0) {
+            console.error('❌ Errores de validación:', validacion.errores);
             return {
                 success: false,
                 error: 'Parámetros inválidos',
