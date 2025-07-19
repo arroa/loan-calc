@@ -5,7 +5,15 @@
 // con soporte para cuotón, casos especiales y validaciones robustas
 // Preparado para exposición como API a terceros
 
-import { LIMITS_CONFIG } from './config.js';
+// Configuración estática para el navegador (sin dependencias de Node.js)
+const LIMITS_CONFIG = {
+  MAX_LOAN_AMOUNT: 50000000,
+  MIN_LOAN_AMOUNT: 100000,
+  MAX_TERM: 120,
+  MIN_TERM: 6,
+  MIN_MONTHLY_RATE: 0.1,
+  MAX_MONTHLY_RATE: 20.0,
+};
 
 // ========================================
 // VALIDACIONES ROBUSTAS PARA API
