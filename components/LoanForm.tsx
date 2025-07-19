@@ -176,7 +176,10 @@ const LoanForm: React.FC<LoanFormProps> = ({ onCalculate, isLoading, financialDa
         </div>
 
         <div>
-          <Label htmlFor="balloonPayment">Cuotón Final (CLP)</Label>
+          <div className="flex justify-between items-center mb-2">
+            <Label htmlFor="balloonPayment">Cuotón Final (CLP)</Label>
+            <span className="text-xs text-gray-500 italic">Típico en préstamos de autos</span>
+          </div>
           <div className="space-y-3">
             {/* Slider para cuotón */}
             <div className="relative">
