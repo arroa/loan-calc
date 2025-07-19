@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Simulador de Préstamos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        
+        .form-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .debug-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .button-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .results-section {
+            padding: 30px;
+        }
+        
+        .debug-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .debug-table th, .debug-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        
+        .debug-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .debug-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .debug-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .debug-info h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #c62828;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Debug - Simulador de Préstamos</h1>
+            <p>Análisis detallado del algoritmo de cálculo</p>
+        </div>
+        
+        <div class="form-section">
+            <h2>📋 Parámetros del Préstamo</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="monto">Monto del Préstamo ($)</label>
+                    <input type="number" id="monto" value="3000000" min="100000" step="100000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tasaMensual">Tasa Mensual (%)</label>
+                    <input type="number" id="tasaMensual" value="1.79" min="0.1" max="50" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="cuotas">Número de Cuotas</label>
+                    <input type="number" id="cuotas" value="25" min="1" max="120">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaFirma">Fecha de Firma</label>
+                    <input type="date" id="fechaFirma" value="2025-07-18">
+                </div>
+                
+                <div class="form-group">
+                    <label for="primerVencimiento">Primer Vencimiento</label>
+                    <input type="date" id="primerVencimiento" value="2025-12-20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="cuoton">Cuotón Final ($)</label>
+                    <input type="number" id="cuoton" value="0" min="0" step="100000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mesesSinPago">Meses Sin Pago (separados por coma)</label>
+                    <input type="text" id="mesesSinPago" placeholder="3,8,12" value="">
+                    <small>Ejemplo: 3,8,12 (marzo, agosto, diciembre)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cuotasEspeciales">Cuotas Especiales (JSON)</label>
+                    <textarea id="cuotasEspeciales" placeholder='[{"mes": 4, "valor": 200000}, {"mes": 10, "valor": 150000}]' rows="3"></textarea>
+                    <small>Ejemplo: [{"mes": 4, "valor": 200000}]</small>
+                </div>
+            </div>
+            
+            <div class="debug-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="debugToggle">
+                    <span class="slider"></span>
+                </label>
+                <span style="font-weight: 600;">Debug ON/OFF</span>
+                <span style="color: #666; margin-left: 10px;">
+                    (ON: muestra todas las iteraciones, OFF: solo resultado final)
+                </span>
+            </div>
+            
+            <div class="button-section">
+                <button class="btn btn-primary" onclick="calcularPrestamo()">
+                    🔄 Iterar
+                </button>
+                <button class="btn btn-secondary" onclick="limpiarResultados()">
+                    🗑️ Limpiar
+                </button>
+            </div>
+        </div>
+        
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>📊 Resultados del Debug</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        async function calcularPrestamo() {
+            const monto = parseFloat(document.getElementById('monto').value);
+            const tasaMensual = parseFloat(document.getElementById('tasaMensual').value);
+            const cuotas = parseInt(document.getElementById('cuotas').value);
+            const fechaFirma = document.getElementById('fechaFirma').value;
+            const primerVencimiento = document.getElementById('primerVencimiento').value;
+            const cuoton = parseFloat(document.getElementById('cuoton').value);
+            const debug = document.getElementById('debugToggle').checked;
+            
+            // Procesar meses sin pago
+            let mesesSinPago = [];
+            const mesesSinPagoText = document.getElementById('mesesSinPago').value.trim();
+            if (mesesSinPagoText) {
+                mesesSinPago = mesesSinPagoText.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
+            }
+            
+            // Procesar cuotas especiales
+            let cuotasEspeciales = [];
+            const cuotasEspecialesText = document.getElementById('cuotasEspeciales').value.trim();
+            if (cuotasEspecialesText) {
+                try {
+                    cuotasEspeciales = JSON.parse(cuotasEspecialesText);
+                } catch (e) {
+                    mostrarError('Error en formato de cuotas especiales. Use formato JSON válido.');
+                    return;
+                }
+            }
+            
+            // Validaciones básicas
+            if (!monto || !tasaMensual || !cuotas || !fechaFirma || !primerVencimiento) {
+                mostrarError('Por favor complete todos los campos requeridos');
+                return;
+            }
+            
+            if (monto <= 0 || tasaMensual <= 0 || cuotas <= 0) {
+                mostrarError('Los valores deben ser mayores a 0');
+                return;
+            }
+            
+            mostrarLoading();
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/loan/debug', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        monto,
+                        tasaMensual,
+                        cuotas,
+                        fechaFirma,
+                        primerVencimiento,
+                        cuoton,
+                        debug,
+                        mesesSinPago,
+                        cuotasEspeciales
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    mostrarError(data.error || 'Error en el cálculo');
+                    return;
+                }
+                
+                mostrarResultados(data, debug);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarError('Error de conexión con el servidor');
+            }
+        }
+        
+        function mostrarLoading() {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsContent').innerHTML = `
+                <div class="loading">
+                    <h3>🔄 Calculando...</h3>
+                    <p>Procesando iteraciones del algoritmo...</p>
+                </div>
+            `;
+        }
+        
+        function mostrarError(mensaje) {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsContent').innerHTML = `
+                <div class="error">
+                    <h3>❌ Error</h3>
+                    <p>${mensaje}</p>
+                </div>
+            `;
+        }
+        
+        function mostrarResultados(data, debug) {
+            let html = '';
+            
+            // Debug temporal
+            console.log('Debug mode:', debug);
+            console.log('Debug data:', data.debugData);
+            console.log('Debug data length:', data.debugData ? data.debugData.length : 0);
+            
+            // Contar iteraciones con cronograma
+            if (data.debugData) {
+                const iteracionesConCronograma = data.debugData.filter(item => item.tipo === 'iteracion' && item.cronograma).length;
+                const totalIteraciones = data.debugData.filter(item => item.tipo === 'iteracion').length;
+                console.log(`📊 Iteraciones con cronograma: ${iteracionesConCronograma}/${totalIteraciones}`);
+            }
+            
+            // Resumen final
+            html += `
+                <div class="success">
+                    <h3>✅ Cálculo Completado</h3>
+                    <p><strong>Cuota fija:</strong> ${data.resumen.cuotaFija.toLocaleString('es-CL')}</p>
+                    <p><strong>Total intereses:</strong> ${data.resumen.totalIntereses.toLocaleString('es-CL')}</p>
+                    <p><strong>Total capital:</strong> ${data.resumen.totalCapital.toLocaleString('es-CL')}</p>
+                    <p><strong>Saldo final:</strong> ${data.resumen.saldoFinal.toLocaleString('es-CL')}</p>
+                    <p><strong>Cuotas totales:</strong> ${data.resumen.cantidadCuotas}</p>
+                    <p><strong>Última cuota ajustada:</strong> ${data.resumen.ultimaCuota.valorAjustado.toLocaleString('es-CL')} ${data.resumen.ultimaCuota.ajuste !== 0 ? `(ajuste: ${data.resumen.ultimaCuota.ajuste > 0 ? '+' : ''}${data.resumen.ultimaCuota.ajuste.toLocaleString('es-CL')})` : '(sin ajuste)'}</p>
+                </div>
+            `;
+            
+            // Información de ajuste de última cuota
+            if (data.resumen.ultimaCuota && data.resumen.ultimaCuota.ajuste !== 0) {
+                html += `
+                    <div class="debug-info">
+                        <h3>🔧 Ajuste de Última Cuota</h3>
+                        <p><strong>Cuota ${data.resumen.ultimaCuota.numero}:</strong></p>
+                        <p>• Valor original: ${data.resumen.ultimaCuota.valorOriginal.toLocaleString('es-CL')}</p>
+                        <p>• Valor ajustado: ${data.resumen.ultimaCuota.valorAjustado.toLocaleString('es-CL')}</p>
+                        <p>• Ajuste aplicado: ${data.resumen.ultimaCuota.ajuste > 0 ? '+' : ''}${data.resumen.ultimaCuota.ajuste.toLocaleString('es-CL')}</p>
+                        <p><em>El residual final se sumó al capital de la última cuota para que el saldo sea exactamente $0.</em></p>
+                    </div>
+                `;
+            }
+            
+            if (debug && data.debugData) {
+                html += '<h3>🔍 Tabla Completa de Iteraciones</h3>';
+                html += mostrarTablaCompleta(data.debugData);
+            }
+            
+            // Siempre mostrar la parrilla de la última iteración (como el frontend principal)
+            html += mostrarTablaCronograma(data.cronograma, 'Cronograma Final');
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsContent').innerHTML = html;
+        }
+        
+        function mostrarTablaCronograma(cronograma, titulo) {
+            let html = `
+                <div class="debug-info">
+                    <h3>📋 ${titulo}</h3>
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Cuota</th>
+                                <th>Fecha</th>
+                                <th>Días</th>
+                                <th>Saldo Inicial</th>
+                                <th>Cuota</th>
+                                <th>Interés</th>
+                                <th>Capital</th>
+                                <th>Saldo Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            cronograma.forEach(fila => {
+                html += `
+                    <tr>
+                        <td>${fila.numeroCuota}</td>
+                        <td>${fila.fechaVencimiento}</td>
+                        <td>${fila.dias}</td>
+                        <td>${fila.capitalInicial}</td>
+                        <td>${fila.valorCuota}</td>
+                        <td>${fila.interes}</td>
+                        <td>${fila.capital}</td>
+                        <td>${fila.capitalResidual}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        function mostrarTablaCompleta(debugData) {
+            let html = '';
+            
+            console.log('🔍 Iniciando mostrarTablaCompleta');
+            console.log('🔍 Total de elementos debugData:', debugData.length);
+            
+            // Contar iteraciones con cronograma
+            const iteracionesConCronograma = debugData.filter(item => item.tipo === 'iteracion' && item.cronograma);
+            console.log('🔍 Iteraciones con cronograma:', iteracionesConCronograma.length);
+            
+            iteracionesConCronograma.forEach((item, index) => {
+                console.log(`🔍 Iteración ${item.numero}: ${item.cronograma.length} cuotas`);
+            });
+            
+            // Mostrar tabla completa de todas las iteraciones
+            html += `
+                <div class="debug-info">
+                    <h3>📋 Cronograma Completo Iteraciones</h3>
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Iteración</th>
+                                <th>Cuota</th>
+                                <th>Fecha</th>
+                                <th>Días</th>
+                                <th>Saldo Inicial</th>
+                                <th>Cuota</th>
+                                <th>Interés</th>
+                                <th>Capital</th>
+                                <th>Saldo Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            let filasGeneradas = 0;
+            debugData.forEach(item => {
+                if (item.tipo === 'iteracion' && item.cronograma) {
+                    console.log(`🔍 Procesando iteración ${item.numero} con ${item.cronograma.length} cuotas`);
+                    item.cronograma.forEach(fila => {
+                        html += `
+                            <tr>
+                                <td>${item.numero}</td>
+                                <td>${fila.numeroCuota}</td>
+                                <td>${fila.fechaVencimiento}</td>
+                                <td>${fila.dias}</td>
+                                <td>${fila.saldoInicial}</td>
+                                <td>${fila.valorCuota}</td>
+                                <td>${fila.interes}</td>
+                                <td>${fila.capital}</td>
+                                <td>${fila.saldoFinal}</td>
+                            </tr>
+                        `;
+                        filasGeneradas++;
+                    });
+                }
+            });
+            
+            console.log('🔍 Total de filas generadas:', filasGeneradas);
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        function limpiarResultados() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('resultsContent').innerHTML = '';
+        }
+        
+        // Inicializar fecha actual
+        document.addEventListener('DOMContentLoaded', function() {
+            // Usar las fechas del ejemplo que funciona
+            const fechaFirma = new Date('2025-07-18');
+            const primerVencimiento = new Date('2025-12-20');
+            
+            document.getElementById('fechaFirma').value = fechaFirma.toISOString().split('T')[0];
+            document.getElementById('primerVencimiento').value = primerVencimiento.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html> 

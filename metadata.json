@@ -1,0 +1,5 @@
+{
+  "name": "Simulador de Crédito Chile",
+  "description": "Una aplicación web para ayudar a los chilenos a comprender los préstamos de consumo utilizando una tabla de amortización de estilo francés. Permite a los usuarios ingresar los detalles del préstamo, simular escenarios como pagos atrasados o postergados, y visualiza el desglose del préstamo a lo largo del tiempo. La aplicación también obtiene datos financieros clave como el valor de la UF y la Tasa Máxima Convencional para proporcionar cálculos realistas.",
+  "requestFramePermissions": []
+}
