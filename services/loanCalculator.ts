@@ -20,7 +20,14 @@ export const calculateAmortization = async (params: LoanParams, financialData: F
   
   try {
     // Usar el algoritmo directamente sin llamar al backend
-    const result = calcularPrestamo(loanParams, false);
+    const result = calcularPrestamo(
+      loanParams.monto,
+      loanParams.tasaMensual,
+      loanParams.cuotas,
+      loanParams.fechaFirma,
+      loanParams.primerVencimiento,
+      loanParams.cuoton
+    );
     
     if (!result.success) {
       throw new Error(result.error || 'Error al calcular el préstamo');
