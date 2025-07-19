@@ -77,16 +77,7 @@ export default function App() {
                 <div className="flex-1">
                   <LoanForm onCalculate={handleCalculate} isLoading={!!loading} financialData={financialData} />
                 </div>
-                <div className="mt-6 pt-4 border-t border-gray-200 text-sm text-gray-500 space-y-2 flex-shrink-0">
-                    <div className="flex justify-between items-center">
-                        <span className="font-semibold">Valor UF (referencial):</span>
-                        <span className="font-mono bg-gray-100 px-2 py-1 rounded">${financialData.ufValue}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="font-semibold">TMC (referencial):</span>
-                        <span className="font-mono bg-gray-100 px-2 py-1 rounded">{financialData.tmcRate.toFixed(2)}% anual</span>
-                    </div>
-                </div>
+
               </div>
             </div>
           </aside>

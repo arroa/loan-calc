@@ -24,7 +24,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onCalculate, isLoading, financialDa
   const minRate = 0.9;
   const maxRate = financialData ? Math.min(2.0, (financialData.tmcRate * 0.95) / 12) : 2.0; // Valor por defecto más conservador
   
-  const [interestRate, setInterestRate] = useState('1.80');
+  const [interestRate, setInterestRate] = useState('1.50');
   
   // Función para actualizar el color del slider
   const updateSliderColor = (sliderId: string, value: string, min: number, max: number) => {
