@@ -60,18 +60,18 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-gray-100/50 text-gray-800 font-sans p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-100/50 text-gray-800 font-sans p-2 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500">
+        <header className="mb-4 sm:mb-8 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500">
             Simulador de Crédito
           </h1>
-          <p className="mt-2 text-lg text-gray-600">Entiende tu préstamo de forma clara y sencilla en Chile.</p>
+          <p className="mt-2 text-base sm:text-lg text-gray-600">Entiende tu préstamo de forma clara y sencilla en Chile.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <aside className="lg:col-span-6 xl:col-span-6">
-             <div className="bg-white p-6 rounded-2xl shadow-lg h-[900px] flex flex-col">
+             <div className="bg-white p-6 rounded-2xl shadow-lg min-h-[600px] lg:h-[900px] flex flex-col">
               <h2 className="text-2xl font-bold mb-4 text-gray-700 flex-shrink-0">Parámetros del Préstamo</h2>
               <div className="flex flex-col flex-1">
                 <div className="flex-1">
@@ -83,7 +83,7 @@ export default function App() {
           </aside>
 
           <main className="lg:col-span-6 xl:col-span-6">
-            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg h-[900px] flex flex-col">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg min-h-[600px] lg:h-[900px] flex flex-col">
               {loading && (
                  <div className="flex items-center justify-center h-64">
                   <Icon name="loader" className="animate-spin h-10 w-10 text-blue-600" />
