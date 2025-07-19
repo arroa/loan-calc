@@ -122,31 +122,31 @@ function calcularDiasEntreFechas(fechaInicio, fechaFin) {
 }
 
 function generarFechasVencimiento(fechaPrimerVencimiento, cantidadCuotas) {
-    const fechas = [];
+  const fechas = [];
     const [año, mes, dia] = fechaPrimerVencimiento.split('-').map(Number);
     
     for (let i = 0; i < cantidadCuotas; i++) {
         let nuevoMes = mes + i;
         let nuevoAño = año;
-        
-        // Ajustar año si pasamos de diciembre
+    
+    // Ajustar año si pasamos de diciembre
         while (nuevoMes > 12) {
-            nuevoMes -= 12;
-            nuevoAño += 1;
-        }
-        
-        // Crear fecha con el día original
+      nuevoMes -= 12;
+      nuevoAño += 1;
+    }
+    
+    // Crear fecha con el día original
         let nuevaFecha = new Date(nuevoAño, nuevoMes - 1, dia);
-        
+    
         // Caso especial: si el día no existe en el mes, usar último día
         if (nuevaFecha.getDate() !== dia) {
             nuevaFecha = new Date(nuevoAño, nuevoMes, 0); // Último día del mes
-        }
-        
-        fechas.push(nuevaFecha.toISOString().split('T')[0]);
     }
     
-    return fechas;
+    fechas.push(nuevaFecha.toISOString().split('T')[0]);
+  }
+
+  return fechas;
 }
 
 // ========================================
@@ -358,8 +358,8 @@ function buscarCuotaFija(params, debug = false) {
     
     // No se alcanzó convergencia
     throw new Error(`No se alcanzó convergencia después de ${maxIteraciones} iteraciones`);
-}
-
+    }
+    
 // ========================================
 // FUNCIÓN PRINCIPAL EXPORTADA
 // ========================================
@@ -370,8 +370,8 @@ function calcularPrestamo(params, debug = false) {
         const validacion = validarParametrosEntrada(params);
         
         if (validacion.errores.length > 0) {
-            return {
-                success: false,
+        return { 
+            success: false, 
                 error: 'Parámetros inválidos',
                 detalles: validacion.errores,
                 warnings: validacion.warnings
@@ -380,8 +380,8 @@ function calcularPrestamo(params, debug = false) {
         
         if (validacion.warnings.length > 0) {
             console.warn('⚠️ Advertencias:', validacion.warnings);
-        }
-        
+    }
+    
         // Ejecutar algoritmo
         const resultado = buscarCuotaFija(params, debug);
         const tabla = resultado.tabla;

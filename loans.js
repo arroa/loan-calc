@@ -342,8 +342,8 @@ function calcularPrestamo(monto, tasaMensual, cuotas, fechaFirma, primerVencimie
         
         if (validacion.errores.length > 0) {
             console.error('❌ Errores de validación:', validacion.errores);
-            return {
-                success: false,
+        return { 
+            success: false, 
                 error: 'Parámetros inválidos',
                 detalles: validacion.errores,
                 warnings: validacion.warnings
