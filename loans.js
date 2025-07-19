@@ -333,15 +333,10 @@ function calcularPrestamo(monto, tasaMensual, cuotas, fechaFirma, primerVencimie
             cuoton
         };
         
-        console.log('🔍 Parámetros recibidos:', params);
-        
         // Validar parámetros de entrada
         const validacion = validarParametrosEntrada(params);
         
-        console.log('🔍 Resultado validación:', validacion);
-        
         if (validacion.errores.length > 0) {
-            console.error('❌ Errores de validación:', validacion.errores);
         return { 
             success: false, 
                 error: 'Parámetros inválidos',
@@ -350,9 +345,7 @@ function calcularPrestamo(monto, tasaMensual, cuotas, fechaFirma, primerVencimie
             };
         }
         
-        if (validacion.warnings.length > 0) {
-            console.warn('⚠️ Advertencias:', validacion.warnings);
-        }
+
         
         // Ejecutar algoritmo
         const tabla = buscarCuotaFija(params);
@@ -386,7 +379,6 @@ function calcularPrestamo(monto, tasaMensual, cuotas, fechaFirma, primerVencimie
         };
         
     } catch (error) {
-        console.error('❌ Error en cálculo:', error.message);
         return {
             success: false,
             error: error.message
