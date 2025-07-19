@@ -2,9 +2,12 @@
 import { LoanParams, Installment, FinancialData } from '../types';
 import { LATE_FEE_RULES, PENALTY_INTEREST_SURCHARGE } from '../constants';
 
+// Importar el algoritmo directamente
+import { calcularPrestamo } from '../loans.js';
+
 export const calculateAmortization = async (params: LoanParams, financialData: FinancialData): Promise<Installment[]> => {
-  // Mapear los parámetros a los nombres esperados por el backend
-  const payload = {
+  // Mapear los parámetros a los nombres esperados por el algoritmo
+  const loanParams = {
     monto: params.amount,
     tasaMensual: params.interestRate,
     cuotas: params.term,
@@ -13,48 +16,44 @@ export const calculateAmortization = async (params: LoanParams, financialData: F
     cuoton: params.balloonPayment || 0
   };
 
-  console.log('📤 Enviando petición al backend:', payload);
+  console.log('🧮 Calculando con algoritmo local:', loanParams);
   
-  const response = await fetch('http://localhost:3001/api/loan/calculate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  try {
+    // Usar el algoritmo directamente sin llamar al backend
+    const result = calcularPrestamo(loanParams, false);
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Error al calcular el préstamo');
+    }
 
-  console.log('📥 Respuesta del backend - Status:', response.status);
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('❌ Error del backend:', errorText);
-    throw new Error('Error al calcular el préstamo');
+    console.log('📊 Resultado del cálculo:', {
+      cuotaFija: result.resumen?.cuotaFija,
+      cantidadCuotas: result.cronograma?.length,
+      resumen: result.resumen
+    });
+    
+    // Mapear la respuesta del algoritmo al formato Installment[]
+    const mappedSchedule = (result.cronograma || []).map((fila: any, idx: number) => ({
+      installmentNumber: fila.numeroCuota || 0,
+      paymentDate: fila.fechaVencimiento || '',
+      principal: fila.capital || 0,
+      interest: fila.interes || 0,
+      totalPayment: fila.valorCuota || 0,
+      remainingBalance: fila.capitalResidual || 0,
+      notes: `Período de ${fila.dias || 0} días`,
+    }));
+    
+    console.log('✅ Cronograma calculado exitosamente:', {
+      cantidadCuotas: mappedSchedule.length,
+      primeraCuota: mappedSchedule[0],
+      ultimaCuota: mappedSchedule[mappedSchedule.length - 1]
+    });
+    
+    return mappedSchedule;
+  } catch (error) {
+    console.error('❌ Error en cálculo local:', error);
+    throw new Error('Error al calcular el préstamo: ' + (error as Error).message);
   }
-
-  const data = await response.json();
-  console.log('📥 Datos recibidos del backend:', {
-    success: data.success,
-    cuotaFija: data.resumen?.cuotaFija,
-    cantidadCuotas: data.cronograma?.length,
-    resumen: data.resumen
-  });
-  
-  // Mapear la respuesta del backend al formato Installment[] si es necesario
-  const mappedSchedule = data.cronograma.map((fila: any, idx: number) => ({
-    installmentNumber: fila.numeroCuota || 0,
-    paymentDate: fila.fechaVencimiento || '',
-    principal: fila.capital || 0,
-    interest: fila.interes || 0,
-    totalPayment: fila.valorCuota || 0, // Usar el valor de cuota de cada fila
-    remainingBalance: fila.capitalResidual || 0, // Corregido: usar capitalResidual en lugar de saldoFinal
-    notes: `Período de ${fila.dias || 0} días`,
-  }));
-  
-  console.log('✅ Cronograma mapeado exitosamente:', {
-    cantidadCuotas: mappedSchedule.length,
-    primeraCuota: mappedSchedule[0],
-    ultimaCuota: mappedSchedule[mappedSchedule.length - 1]
-  });
-  
-  return mappedSchedule;
 };
 
 // SIMULATION FUNCTIONS
